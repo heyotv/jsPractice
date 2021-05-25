@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', function() {
   hideTabContent();
   showTabContent();
 
-  tabsParent.addEventListener('click', function(e) {
+  tabsParent.addEventListener('click', e => {
     const target = e.target;
 
     if (target && target.classList.contains('tabheader__item')) {
@@ -99,13 +99,12 @@ window.addEventListener('DOMContentLoaded', function() {
     modal = document.querySelector('.modal'),
     modalCloseBtn = document.querySelector('[data-close]');
 
-  modalTriggers.forEach(btn => {
-    btn.addEventListener('click', () => {
-      modal.classList.add('show');
-      modal.classList.remove('hide');
-      document.body.style.overflow = 'hidden';
-    });
-  });
+  const openModal = () => {
+    modal.classList.add('show');
+    modal.classList.remove('hide');
+    document.body.style.overflow = 'hidden';
+    clearInterval(modalTimerId);
+  };
 
   const closeModal = () => {
     modal.classList.add('hide');
@@ -113,17 +112,32 @@ window.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   };
 
+  modalTriggers.forEach(btn => {
+    btn.addEventListener('click', openModal);
+  });
+
   modalCloseBtn.addEventListener('click', closeModal);
 
-  modal.addEventListener('click', (e) => {
+  modal.addEventListener('click', e => {
     if (e.target === modal) {
       closeModal();
     }
   });
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (modal.classList.contains('show') && e.code === 'Escape') {
       closeModal();
     }
   });
+
+  const modalTimerId = setTimeout(openModal, 3000);
+
+  const showModalByScroll = () => {
+    if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+      openModal();
+      window.removeEventListener('scroll', showModalByScroll);
+    }
+  };
+
+  window.addEventListener('scroll', showModalByScroll);
 });
